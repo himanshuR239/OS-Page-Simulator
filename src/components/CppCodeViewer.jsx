@@ -1,6 +1,24 @@
-import React, { useState } from 'react';
-import { Code2, Copy, Check, Terminal, FileCode2 } from 'lucide-react';
+// ============================================================
+// components/CppCodeViewer.jsx - C++ Code Display Panel
+// ============================================================
+// Displays a hardcoded C++ implementation of the page
+// replacement algorithms inside a stylized code viewer card.
+// Features:
+//   - Syntax-highlighted monospace code block (via <pre>)
+//   - Header bar with file name and "Copy" button
+//   - Copy button uses clipboard API and shows "Copied!" feedback
+//
+// The C++ code shown is the reference implementation of
+// FIFO, Optimal, and LRU algorithms that mirrors the JS logic.
+// Used on the LandingPage as an educational reference.
+// ============================================================
 
+import React, { useState } from 'react';
+import { Code2, Copy, Check, Terminal, FileCode2 } from 'lucide-react'; // Icons
+
+// The C++ source code displayed in the viewer.
+// This is stored as a plain string (template literal) so it can be
+// both rendered inside <pre> and copied to clipboard.
 const CPP_CODE = `#include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -182,39 +200,52 @@ int main() {
     return 0;
 }`;
 
+// CppCodeViewer Component
 const CppCodeViewer = () => {
+  // copied - State to track if the user just clicked the copy button
+  // false = show "Copy" label, true = show "Copied!" feedback (for 2 seconds)
   const [copied, setCopied] = useState(false);
 
+  // handleCopy - Copies the C++ code string to the user's clipboard
+  // Uses the modern navigator.clipboard API (only works on HTTPS / localhost)
   const handleCopy = () => {
-    navigator.clipboard.writeText(CPP_CODE);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard.writeText(CPP_CODE); // Write code to clipboard
+    setCopied(true);                          // Switch button to "Copied!" state
+    setTimeout(() => setCopied(false), 2000); // Reset back to "Copy" after 2 seconds
   };
 
   return (
+    // Outer card container: rounded corners, dark background, overflow-hidden clips the child corners
     <div className="bg-[#1e1735]/90 border border-pink-500/20 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-lg">
-      {/* Code Header Bar */}
+      
+      {/* ---- CODE HEADER BAR ---- */}
+      {/* Shows the filename and the copy button */}
       <div className="px-6 py-4 bg-[#16102b] border-b border-pink-500/20 flex items-center justify-between">
         <div className="flex items-center space-x-3">
+          {/* File icon box */}
           <div className="w-8 h-8 rounded-lg bg-pink-600/30 border border-pink-500/30 flex items-center justify-center">
             <FileCode2 className="w-4 h-4 text-pink-400" />
           </div>
           <div>
+            {/* Filename label */}
             <h3 className="font-bold text-white text-sm">cpp_Implementation.cpp</h3>
             <p className="text-[11px] text-gray-400">Reference C++ Implementation for OS Algorithms</p>
           </div>
         </div>
 
+        {/* Copy button - changes appearance after clicking */}
         <button
           onClick={handleCopy}
           className="px-3.5 py-1.5 rounded-xl bg-pink-600/20 hover:bg-pink-600/40 border border-pink-500/30 text-pink-300 text-xs font-semibold flex items-center gap-1.5 transition-all"
         >
           {copied ? (
+            // Shows green "Copied!" confirmation for 2 seconds after clicking
             <>
               <Check className="w-3.5 h-3.5 text-emerald-400" />
               <span className="text-emerald-300">Copied!</span>
             </>
           ) : (
+            // Default state: shows copy icon and label
             <>
               <Copy className="w-3.5 h-3.5" />
               <span>Copy C++ Code</span>
@@ -223,8 +254,12 @@ const CppCodeViewer = () => {
         </button>
       </div>
 
-      {/* Code Body */}
+      {/* ---- CODE BODY ---- */}
+      {/* max-h-[500px] = scrollable if code is taller than 500px */}
+      {/* overflow-x-auto = horizontal scroll if code lines are wider than the card */}
+      {/* font-mono = monospace font so code characters align correctly */}
       <div className="p-6 overflow-x-auto max-h-[500px] bg-[#120e24] font-mono text-xs text-gray-300 leading-relaxed scrollbar-thin scrollbar-thumb-pink-500/30">
+        {/* <pre> preserves all whitespace, indentation, and newlines exactly as typed in CPP_CODE */}
         <pre className="whitespace-pre">
           {CPP_CODE}
         </pre>
